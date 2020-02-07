@@ -10,8 +10,7 @@
 #include <iostream>
 #include <sstream>
 
-int
-main()
+int main()
 {
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,14 +32,16 @@ main()
   memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
 
   // connect to the server
-  if (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
+  if (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
+  {
     perror("connect");
     return 2;
   }
 
   struct sockaddr_in clientAddr;
   socklen_t clientAddrLen = sizeof(clientAddr);
-  if (getsockname(sockfd, (struct sockaddr *)&clientAddr, &clientAddrLen) == -1) {
+  if (getsockname(sockfd, (struct sockaddr *)&clientAddr, &clientAddrLen) == -1)
+  {
     perror("getsockname");
     return 3;
   }
@@ -57,18 +58,21 @@ main()
   char buf[20] = {0};
   std::stringstream ss;
 
-  while (!isEnd) {
+  while (!isEnd)
+  {
     memset(buf, '\0', sizeof(buf));
 
     std::cout << "send: ";
     std::cin >> input;
-    if (send(sockfd, input.c_str(), input.size(), 0) == -1) {
+    if (send(sockfd, input.c_str(), input.size(), 0) == -1)
+    {
       perror("send");
       return 4;
     }
 
 
-    if (recv(sockfd, buf, 20, 0) == -1) {
+    if (recv(sockfd, buf, 20, 0) == -1)
+    {
       perror("recv");
       return 5;
     }
