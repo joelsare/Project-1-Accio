@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 
-int main()
+int main(int argc, char *args[])
 {
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);

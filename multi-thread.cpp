@@ -18,7 +18,8 @@ countdown(int id, int count)
 void
 noJoin()
 {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     thread(countdown, i+1, (i+1)*5).detach();
     // thread t(countdown, i+1, (i+1)*5); // Wrong! thread is not safely destroyed.
   }
@@ -30,11 +31,13 @@ void
 join()
 {
   thread t[3];
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     t[i] = thread(countdown, i+1, (i+1)*5);
   }
 
-  for (int i = 0; i < 3; i++) { // must join, otherwise threads will not be released safely.
+  for (int i = 0; i < 3; i++)
+  { // must join, otherwise threads will not be released safely.
     t[i].join();
   }
   cout << "main thread is about to terminate." << std::endl;
