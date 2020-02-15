@@ -6,12 +6,27 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
-
 #include <iostream>
 #include <sstream>
+using namespace std; 
+
 
 int main(int argc, char *args[])
 {
+  const char * hostName = args[1];
+
+  stringstream p(args[2]);
+  int port;
+  p >> port;
+
+  if ((port <= 1023))
+  {
+    std::cout << "ERROR: port must be above 1023" << std::endl;
+    return 1;
+  }
+
+  string fileName = args[3];
+
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -27,7 +42,7 @@ int main(int argc, char *args[])
 
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(40000);     // short, network byte order
+  serverAddr.sin_port = htons(port);     // short, network byte order
   serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
   memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
 
@@ -49,27 +64,22 @@ int main(int argc, char *args[])
   char ipstr[INET_ADDRSTRLEN] = {'\0'};
   inet_ntop(clientAddr.sin_family, &clientAddr.sin_addr, ipstr, sizeof(ipstr));
   std::cout << "Set up a connection from: " << ipstr << ":" <<
-    ntohs(clientAddr.sin_port) << std::endl;
+  ntohs(clientAddr.sin_port) << std::endl;
 
 
   // send/receive data to/from connection
-  bool isEnd = false;
-  std::string input;
   char buf[20] = {0};
   std::stringstream ss;
 
-  while (!isEnd)
+  while (1)
   {
     memset(buf, '\0', sizeof(buf));
 
-    std::cout << "send: ";
-    std::cin >> input;
-    if (send(sockfd, input.c_str(), input.size(), 0) == -1)
+    if (send(sockfd, fileName.c_str(), fileName.size(), 0) == -1)
     {
       perror("send");
       return 4;
     }
-
 
     if (recv(sockfd, buf, 20, 0) == -1)
     {
@@ -77,15 +87,13 @@ int main(int argc, char *args[])
       return 5;
     }
     ss << buf << std::endl;
-    std::cout << "echo: ";
-    std::cout << buf << std::endl;
 
     if (ss.str() == "close\n")
+    {
       break;
-
+    }
     ss.str("");
   }
-
   close(sockfd);
 
   return 0;
