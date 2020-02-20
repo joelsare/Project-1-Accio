@@ -28,7 +28,6 @@ int main(int argc, char *args[])
   timeout.tv_usec = 0;
   std::stringstream ss;
   char buf[20] = {0};
-  const int MAX_SIZE = 104857600;
   stringstream p(args[1]);
   int port;
   int val;
