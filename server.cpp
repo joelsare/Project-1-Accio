@@ -23,8 +23,8 @@ void signalHandler(int signum)
 
 int main(int argc, char *args[])
 {
-  struct timeval timeout;      
-  timeout.tv_sec = 2;
+  struct timeval timeout;
+  timeout.tv_sec = 10;
   timeout.tv_usec = 0;
   std::stringstream ss;
   char buf[20] = {0};
@@ -43,7 +43,7 @@ int main(int argc, char *args[])
   p >> port;
   if ((port <= 1023))
   {
-    std::cout << "ERROR: port must be above 1023" << std::endl;
+    std::cerr << "ERROR: port must be above 1023" << std::endl;
     return 1;
   }
 
@@ -58,7 +58,7 @@ int main(int argc, char *args[])
     return 1;
   }
 
-  if (setsockopt (sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+  if (setsockopt (sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
   {
     cerr << "Error";
     return 1;
@@ -85,20 +85,29 @@ int main(int argc, char *args[])
   }
   while (1)
   {
+    string fileName;
+    string destination;
+
     struct sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
 
     new1 = accept(sockfd, (struct sockaddr*)&clientAddr, &clientAddrSize);
     char ipstr[INET_ADDRSTRLEN] = {'\0'};
     inet_ntop(clientAddr.sin_family, &clientAddr.sin_addr, ipstr, sizeof(ipstr));
-    std::cout << "Accept a connection from: " << ipstr << ":" <<
-    ntohs(clientAddr.sin_port) << std::endl;
 
     val = fork();
     if (new1 == -1)
     {
-      perror("accept");
-      return 4;
+      if (counter == 0)
+      {
+        counter++;
+      }
+      string destination = dirName + std::to_string(counter) + ".file";
+      std::ofstream file;
+      file.open(destination);
+      file << "ERROR";
+      file.close();
+      return 1;
     }
 
     if(val  == -1)
@@ -121,14 +130,11 @@ int main(int argc, char *args[])
         perror("recv");
         return 5;
       }
+
       counter++;
-
       ss << buf << std::endl;
-      std::cout << buf << counter << std::endl;
-
-
-      string fileName = buf;
-      string destination = dirName + std::to_string(counter) + ".file";
+      fileName = buf;
+      destination = dirName + std::to_string(counter) + ".file";
 
       std::ifstream src(fileName);
       std::ofstream dst(destination);
